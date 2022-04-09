@@ -34,7 +34,7 @@ let userSchema = Schema(
   { timestamps: true }
 );
 
-//menambahkan validasi email baru -regexemailvalidator
+
 userSchema.path("email").validate(
   function (value) {
     const EMAIL_RE = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
@@ -43,16 +43,11 @@ userSchema.path("email").validate(
   (attr) => `${attr.value} harus merupakan email yang valid!`
 );
 
-//validasi pengecekan email apakah sudah terdaftar atau tidak
+
 userSchema.path("email").validate(
   async function (value) {
     try {
-      //lakukan pencaharian  ke collection user berdasarkan "email"
       const count = await this.model("User").count({ email: value });
-
-      //kode ini mengidentifikasi bahwa jika user ditemukan akan mengembalikan  'false' jika tidak ditemukan mengembalikan true
-      //jika 'false' maka validasi gagal/
-      //jika 'true' maka validasi berhasil/mengembalikan nilai 1 atau ketemu
       return !count;
     } catch (error) {
       throw error;
@@ -61,13 +56,13 @@ userSchema.path("email").validate(
   (attr) => `${attr.value} sudah terdaftar`
 );
 
-// hashing password //npm install bcrypt
+
 const HASH_ROUND = 10;
 userSchema.pre("save", function (next) {
   this.password = bcrypt.hashSync(this.password, HASH_ROUND);
   next();
 });
 
-//mengaktifkan auto increment pada customer_id //npm i mongoose-sequence
+
 userSchema.plugin(AutoIncrement, { inc_field: "customer_id" });
 module.exports = model("User", userSchema);
